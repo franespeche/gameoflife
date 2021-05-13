@@ -2,11 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 
 import './styles/GameOfLife.css'
 
-// Entiendo que los helpers se utilizan cuando mas de uncomponente necesita de la logica.
-// En este caso decidi poner la funcion de crear grilla afuera para que este componente
-// quede mas prolijo
-
-import { createGrid } from './utils/grid.helpers'
+import { nextFigure } from './utils/helpers'
 
 import { Grid, MenuBar, MenuItem, DropdownMenu, DropdownItem } from './components'
 
@@ -28,7 +24,35 @@ import {
 
 function GameOfLife() {
 
-//
+  // INIT FUNCTIONS  
+
+  //
+  // Crea la grilla de acuerdo a las filas y columnas pasadas por parametro
+  // Dependiendo del pattern (RANDOM, DEFAULT), setea las celulas iniciales
+  // como vivas o muertas
+
+  const createGrid = (numRows, numCols, pattern) => {
+    const rows = []
+
+    for (let i = 0; i < numRows; i++){
+      rows[i] = Array.from(Array(numCols), () => setCellStatus(pattern))
+    }
+    return rows
+  }
+
+  const setCellStatus = pattern => {
+    switch(pattern) {
+      case 'RANDOM': 
+        return Math.round(Math.random())
+      case 'DEFAULT':
+        return 0
+    }
+  }
+
+
+  // STATE DECLARATIONS
+
+
   const [initialGrid, setInitialGrid] = useState({
     numRows: 30,
     numCols: 40,
@@ -41,7 +65,7 @@ function GameOfLife() {
     createGrid(numRows, numCols, pattern)
   )
   
-  const [figure, setFigure] = useState('BLINKER')
+  const [currentFigure, setCurrentFigure] = useState('BLINKER')
 
   const [stepmode, setStepmode] = useState(false)
 
@@ -49,62 +73,75 @@ function GameOfLife() {
 
   const speedRef = useRef()
 
+  // @dev: Array con las posibles figuras.. 
+  // @dev: Es el que le paso a change nextFigure
+  const figures = [
+    'DOT',
+    'GLIDER',
+    'BLINKER',
+    'BOAT',
+    'SHIP',
+    'BEACON',
+    'BLOCK'
+  ]
+
   // FUNCTIONS
 
-  const setCellStatus = (row, col, figure) => {
-    const updatedGrid = produce(grid, draftGrid => {
+
+  const draw = (row, col, figure) => {
+    const updatedGrid = produce(grid, draft => {
     
         switch(figure) {
           case 'DOT':
-            draftGrid[row][col] = grid[row][col] ? 0 : 1
+            draft[row][col] = grid[row][col] ? 0 : 1
             break
        
           case 'GLIDER': { 
-            draftGrid[row][col] = draftGrid[row][col] ? 0 : 1
-            draftGrid[row][col+1] = draftGrid[row][col+1] ? 0 : 1
-            draftGrid[row][col+2] = draftGrid[row][col+2] ? 0 : 1
-            draftGrid[row+1][col] = draftGrid[row+1][col] ? 0 : 1
-            draftGrid[row+2][col+1] = draftGrid[row+2][col+1] ? 0 : 1
+            draft[row][col] = draft[row][col] ? 0 : 1
+            draft[row][col+1] = draft[row][col+1] ? 0 : 1
+            draft[row][col+2] = draft[row][col+2] ? 0 : 1
+            draft[row+1][col] = draft[row+1][col] ? 0 : 1
+            draft[row+2][col+1] = draft[row+2][col+1] ? 0 : 1
             break
           }
 
           case 'BLINKER': { 
-            draftGrid[row][col] = draftGrid[row][col] ? 0 : 1
-            draftGrid[row][col+1] = draftGrid[row][col+1] ? 0 : 1
-            draftGrid[row][col-1] = draftGrid[row][col-1] ? 0 : 1
+            draft[row][col] = draft[row][col] ? 0 : 1
+            draft[row][col+1] = draft[row][col+1] ? 0 : 1
+            draft[row][col-1] = draft[row][col-1] ? 0 : 1
             
             break
           }
 
           case 'BOAT': {
-            draftGrid[row][col] = draftGrid[row][col] ? 0 : 1
-            draftGrid[row][col+1] = draftGrid[row][col+1] ? 0 : 1
-            draftGrid[row+1][col] = draftGrid[row+1][col] ? 0 : 1
-            draftGrid[row+1][col+2] = draftGrid[row+1][col+2] ? 0 : 1
-            draftGrid[row+2][col+1] = draftGrid[row+2][col+1] ? 0 : 1
+            draft[row][col] = draft[row][col] ? 0 : 1
+            draft[row][col+1] = draft[row][col+1] ? 0 : 1
+            draft[row+1][col] = draft[row+1][col] ? 0 : 1
+            draft[row+1][col+2] = draft[row+1][col+2] ? 0 : 1
+            draft[row+2][col+1] = draft[row+2][col+1] ? 0 : 1
             break
           }
 
           case 'SHIP': {
-            draftGrid[row][col] = draftGrid[row][col] ? 0 : 1
-            draftGrid[row][col+1] = draftGrid[row][col+1] ? 0 : 1
-            draftGrid[row+1][col] = draftGrid[row+1][col] ? 0 : 1
-            draftGrid[row+1][col+2] = draftGrid[row+1][col+2] ? 0 : 1
-            draftGrid[row+2][col+1] = draftGrid[row+2][col+1] ? 0 : 1
-            draftGrid[row+2][col+2] = draftGrid[row+2][col+2] ? 0 : 1
+            draft[row][col] = draft[row][col] ? 0 : 1
+            draft[row][col+1] = draft[row][col+1] ? 0 : 1
+            draft[row+1][col] = draft[row+1][col] ? 0 : 1
+            draft[row+1][col+2] = draft[row+1][col+2] ? 0 : 1
+            draft[row+2][col+1] = draft[row+2][col+1] ? 0 : 1
+            draft[row+2][col+2] = draft[row+2][col+2] ? 0 : 1
             break
           }
           case 'BEACON': {
-            draftGrid[row][col] = draftGrid[row][col] ? 0 : 1
-            draftGrid[row][col+1] = draftGrid[row][col+1] ? 0 : 1
-            draftGrid[row+1][col] = draftGrid[row+1][col]  ? 0 : 1
-            draftGrid[row+3][col+2] = draftGrid[row+3][col+2] ? 0 : 1
-            draftGrid[row+3][col+3] = draftGrid[row+3][col+3] ? 0 : 1
-            draftGrid[row+2][col+3] = draftGrid[row+2][col+3] ? 0 : 1
+            draft[row][col] = draft[row][col] ? 0 : 1
+            draft[row][col+1] = draft[row][col+1] ? 0 : 1
+            draft[row+1][col] = draft[row+1][col]  ? 0 : 1
+            draft[row+3][col+2] = draft[row+3][col+2] ? 0 : 1
+            draft[row+3][col+3] = draft[row+3][col+3] ? 0 : 1
+            draft[row+2][col+3] = draft[row+2][col+3] ? 0 : 1
             break
           }
           default: 
-            draftGrid[row][col] = grid[row][col] ? 0 : 1
+            draft[row][col] = grid[row][col] ? 0 : 1
             break
         
       }
@@ -141,10 +178,8 @@ function GameOfLife() {
   }
 
   const handleStep = () => {
-    
-    let stop = true
   
-    const updatedGrid = produce(grid, draftGrid => {
+    const updatedGrid = produce(grid, draft => {
 
 
       for (let i = 0; i < numRows; i++) {
@@ -153,28 +188,28 @@ function GameOfLife() {
           const cellNeighboursCount = countNeighbours(i, j)
           
           // celula muerta y tres vecinas vivas, nace
-          if(!draftGrid[i][j] && cellNeighboursCount === 3) {
-            draftGrid[i][j] = 1
+          if(!draft[i][j] && cellNeighboursCount === 3) {
+            draft[i][j] = 1
             stop = false
             continue
           }
           
           // celula viva y dos o tres vecinas vivas, vive
-          if(draftGrid[i][j] && [2, 3].includes(cellNeighboursCount)) {
+          if(draft[i][j] && [2, 3].includes(cellNeighboursCount)) {
             stop = false
             continue
           }
 
           // celula viva y menos de dos vecinas vivas, muere
-          if(draftGrid[i][j] && cellNeighboursCount < 2) {
-            draftGrid[i][j] = 0
+          if(draft[i][j] && cellNeighboursCount < 2) {
+            draft[i][j] = 0
             stop = false
             continue
           }
 
           // celula viva y mas de tres vecinas vivas, muere
-          if(draftGrid[i][j] && cellNeighboursCount > 3) {
-            draftGrid[i][j] = 0
+          if(draft[i][j] && cellNeighboursCount > 3) {
+            draft[i][j] = 0
             stop = false
             continue
           }
@@ -184,8 +219,8 @@ function GameOfLife() {
       
     })
   
-      setGeneration(gen => gen + 1)
-      setGrid(updatedGrid)
+    setGeneration(gen => gen + 1)
+    setGrid(updatedGrid)
 
   }
 
@@ -219,32 +254,27 @@ function GameOfLife() {
           <MenuItem  icon={<FontAwesomeIcon icon={barsIcon} />}>
             
             <DropdownMenu>
-        
-              <DropdownItem>
-                Change Grid Size
-              </DropdownItem>
 
               <DropdownItem callback={()=> setStepmode(!stepmode)}>
                 Step Mode: { stepmode ? <b>ON</b> : <b>OFF</b> }
               </DropdownItem>  
 
-              <DropdownItem callback={()=> {}}>
-                Figure: <b>{ figure }</b>
+              <DropdownItem callback={()=> {setCurrentFigure(nextFigure(currentFigure, figures))}}>
+                Figure: <b>{ currentFigure }</b>
               </DropdownItem>
 
               <DropdownItem>
                 Speed
 
                 <Slider aria-label="slider-ex-1" 
-                        value={speedRef.current}
                         onChange={(v)=>speedRef.current = v } 
-                        defaultValue={1000} 
+                        defaultValue={speedRef.current} 
                         min={10} 
                         max={800} 
-                        colorScheme='pink' 
-                        defaultValue={100}>
+                        isReversed={true}
+                        colorScheme='none' >
                   <SliderTrack>
-                    <SliderFilledTrack isReversed={true} />
+                    <SliderFilledTrack  />
                   </SliderTrack>
                   <SliderThumb />
                 </Slider>
@@ -259,8 +289,8 @@ function GameOfLife() {
 
         </MenuBar>
 
-        <Grid setCellStatus={setCellStatus} 
-              figure={figure} 
+        <Grid draw={draw} 
+              currentFigure={currentFigure} 
               grid={grid} 
               numCols={numCols} />
         
