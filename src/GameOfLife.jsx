@@ -8,7 +8,7 @@ import './styles/GameOfLife.css'
 
 import { createGrid } from './utils/grid.helpers'
 
-import { Grid, MenuBar, MenuItem, DropdownMenu, DropdownItem, RangeSlider } from './components'
+import { Grid, MenuBar, MenuItem, DropdownMenu, DropdownItem } from './components'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars as barsIcon } from '@fortawesome/free-solid-svg-icons'
@@ -41,7 +41,7 @@ function GameOfLife() {
     createGrid(numRows, numCols, pattern)
   )
   
-  const [figure, setFigure] = useState('GLIDER')
+  const [figure, setFigure] = useState('BLINKER')
 
   const [stepmode, setStepmode] = useState(false)
 
@@ -55,16 +55,52 @@ function GameOfLife() {
     const updatedGrid = produce(grid, draftGrid => {
     
         switch(figure) {
-          case 'DEFAULT':
+          case 'DOT':
             draftGrid[row][col] = grid[row][col] ? 0 : 1
             break
        
           case 'GLIDER': { 
-            draftGrid[row][col] = 1
-            draftGrid[row][col+1] = 1
-            draftGrid[row][col+2] = 1
-            draftGrid[row+1][col] = 1
-            draftGrid[row+2][col+1] = 1
+            draftGrid[row][col] = draftGrid[row][col] ? 0 : 1
+            draftGrid[row][col+1] = draftGrid[row][col+1] ? 0 : 1
+            draftGrid[row][col+2] = draftGrid[row][col+2] ? 0 : 1
+            draftGrid[row+1][col] = draftGrid[row+1][col] ? 0 : 1
+            draftGrid[row+2][col+1] = draftGrid[row+2][col+1] ? 0 : 1
+            break
+          }
+
+          case 'BLINKER': { 
+            draftGrid[row][col] = draftGrid[row][col] ? 0 : 1
+            draftGrid[row][col+1] = draftGrid[row][col+1] ? 0 : 1
+            draftGrid[row][col-1] = draftGrid[row][col-1] ? 0 : 1
+            
+            break
+          }
+
+          case 'BOAT': {
+            draftGrid[row][col] = draftGrid[row][col] ? 0 : 1
+            draftGrid[row][col+1] = draftGrid[row][col+1] ? 0 : 1
+            draftGrid[row+1][col] = draftGrid[row+1][col] ? 0 : 1
+            draftGrid[row+1][col+2] = draftGrid[row+1][col+2] ? 0 : 1
+            draftGrid[row+2][col+1] = draftGrid[row+2][col+1] ? 0 : 1
+            break
+          }
+
+          case 'SHIP': {
+            draftGrid[row][col] = draftGrid[row][col] ? 0 : 1
+            draftGrid[row][col+1] = draftGrid[row][col+1] ? 0 : 1
+            draftGrid[row+1][col] = draftGrid[row+1][col] ? 0 : 1
+            draftGrid[row+1][col+2] = draftGrid[row+1][col+2] ? 0 : 1
+            draftGrid[row+2][col+1] = draftGrid[row+2][col+1] ? 0 : 1
+            draftGrid[row+2][col+2] = draftGrid[row+2][col+2] ? 0 : 1
+            break
+          }
+          case 'BEACON': {
+            draftGrid[row][col] = draftGrid[row][col] ? 0 : 1
+            draftGrid[row][col+1] = draftGrid[row][col+1] ? 0 : 1
+            draftGrid[row+1][col] = draftGrid[row+1][col]  ? 0 : 1
+            draftGrid[row+3][col+2] = draftGrid[row+3][col+2] ? 0 : 1
+            draftGrid[row+3][col+3] = draftGrid[row+3][col+3] ? 0 : 1
+            draftGrid[row+2][col+3] = draftGrid[row+2][col+3] ? 0 : 1
             break
           }
           default: 
