@@ -25,20 +25,11 @@ import {
 function GameOfLife() {
 
   // INIT FUNCTIONS  
-
-  //
+  
   // Crea la grilla de acuerdo a las filas y columnas pasadas por parametro
   // Dependiendo del pattern (RANDOM, DEFAULT), setea las celulas iniciales
   // como vivas o muertas
 
-  const createGrid = (numRows, numCols, pattern) => {
-    const rows = []
-
-    for (let i = 0; i < numRows; i++){
-      rows[i] = Array.from(Array(numCols), () => setCellStatus(pattern))
-    }
-    return rows
-  }
 
   const setCellStatus = pattern => {
     switch(pattern) {
@@ -48,6 +39,16 @@ function GameOfLife() {
         return 0
     }
   }
+  
+  const createGrid = (numRows, numCols, pattern) => {
+    const rows = []
+
+    for (let i = 0; i < numRows; i++){
+      rows[i] = Array.from(Array(numCols), () => setCellStatus(pattern))
+    }
+    return rows
+  }
+  
 
 
   // STATE DECLARATIONS
@@ -65,14 +66,13 @@ function GameOfLife() {
     createGrid(numRows, numCols, pattern)
   )
   
-  const [currentFigure, setCurrentFigure] = useState('BLINKER')
-
+  
   const [stepmode, setStepmode] = useState(false)
-
+  
   const [generation, setGeneration] = useState(1)
 
   const speedRef = useRef()
-
+  
   // @dev: Array con las posibles figuras.. 
   // @dev: Es el que le paso a change nextFigure
   const figures = [
@@ -84,6 +84,9 @@ function GameOfLife() {
     'BEACON',
     'BLOCK'
   ]
+  
+  const [currentFigure, setCurrentFigure] = useState('BLINKER')
+
 
   // FUNCTIONS
 
@@ -138,6 +141,13 @@ function GameOfLife() {
             draft[row+3][col+2] = draft[row+3][col+2] ? 0 : 1
             draft[row+3][col+3] = draft[row+3][col+3] ? 0 : 1
             draft[row+2][col+3] = draft[row+2][col+3] ? 0 : 1
+            break
+          }
+          case 'BLOCK': {
+            draft[row][col] = draft[row][col] ? 0 : 1
+            draft[row+1][col+1] = draft[row+1][col+1] ? 0 : 1
+            draft[row+1][col] = draft[row+1][col]  ? 0 : 1
+            draft[row][col+1] = draft[row][col+1] ? 0 : 1
             break
           }
           default: 
