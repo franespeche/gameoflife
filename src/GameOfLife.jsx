@@ -26,7 +26,7 @@ function GameOfLife() {
 
   // INIT FUNCTIONS  
 
-
+  //
   // Crea la grilla de acuerdo a las filas y columnas pasadas por parametro
   // Dependiendo del pattern (RANDOM, DEFAULT), setea las celulas iniciales
   // como vivas o muertas
