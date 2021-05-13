@@ -28,7 +28,7 @@ import {
 
 function GameOfLife() {
 
-
+//
   const [initialGrid, setInitialGrid] = useState({
     numRows: 30,
     numCols: 40,
