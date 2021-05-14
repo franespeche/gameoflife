@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Grid = ({grid, numCols, draw, currentFigure}) => {
-
+    console.log(typeof(grid))
     return (
         <div style={{
             display: `grid`,
@@ -9,7 +9,7 @@ const Grid = ({grid, numCols, draw, currentFigure}) => {
             gap: '5px',
             justifyContent: 'center',
         }}>
-            {grid.map((row, i) => 
+            {grid && grid.map((row, i) => 
                 row.map((col, j) => {
 
                 const cellStatus =  grid[i][j]
@@ -20,6 +20,8 @@ const Grid = ({grid, numCols, draw, currentFigure}) => {
                 }
             ))}
         </div>
+
+     
     )
 }
 

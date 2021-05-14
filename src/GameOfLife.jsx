@@ -54,26 +54,7 @@ function GameOfLife() {
   // STATE DECLARATIONS
 
 
-  const [initialGrid, setInitialGrid] = useState({
-    numRows: 30,
-    numCols: 40,
-    pattern: 'DEFAULT'
-  })
-
-  const { numRows, numCols, pattern } = initialGrid
-
-  const [grid, setGrid] = useState(() =>
-    createGrid(numRows, numCols, pattern)
-  )
-  
-  
-  const [stepmode, setStepmode] = useState(false)
-  
-  const [generation, setGeneration] = useState(1)
-
-  const speedRef = useRef()
-  
-  // @dev: Array con las posibles figuras.. 
+ // @dev: Array con las posibles figuras.. 
   // @dev: Es el que le paso a change nextFigure
   const figures = [
     'DOT',
@@ -85,28 +66,35 @@ function GameOfLife() {
     'BLOCK'
   ]
   
-  const [currentFigure, setCurrentFigure] = useState('BLINKER')
+  const [currentFigure, setCurrentFigure] = useState(() => {
+    const figure = localStorage.getItem('figure') || 'GLIDER'
+    return figure
+  })
+
+  const [initialGrid, setInitialGrid] = useState({
+    numRows: 30,
+    numCols: 40,
+    pattern: 'DEFAULT'
+  })
+
+  const { numRows, numCols, pattern } = initialGrid
+
+
+  const [grid, setGrid] = useState(() => 
+    createGrid(numRows, numCols, pattern)
+  )
+  
+  const [stepmode, setStepmode] = useState(false)
+  
+  const [generation, setGeneration] = useState(1)
+
+  const speedRef = useRef()
+  
+ 
 
 
   // FUNCTIONS
-  
-  // Al ser la grilla circular, creo funcion que retorna el topRow, bottomRow, 
-  // leftCol o rightCol de acuerdo a la posicion del row/col
 
-  const setBoundarie = (position, positionType, gridSize) => {
-    const { numRows, numCols } = gridSize
-
-    switch (positionType) {
-      case 'topRow': 
-        return position - 1 < 0 ? numRows - 1 : position - 1
-      case 'bottomRow': 
-        return position + 1 === numRows ? 0 : position + 1
-      case 'leftCol': 
-        return position - 1 < 0 ? numCols - 1 : position - 1
-      case 'rightCol': 
-        return position + 1 === numCols ? 0 : position + 1
-    }
-  }
 
   const draw = (row, col, figure) => {
 
@@ -114,7 +102,11 @@ function GameOfLife() {
     const bottomRow = row + 1 === numRows ? 0 : row + 1
     const leftCol = col - 1 < 0 ? numCols - 1 : col - 1
     const rightCol = col + 1 === numCols ? 0 : col + 1
-
+    
+    const topRow2 = row - 2 < 0 ? numRows - 1 : row - 2 
+    const bottomRow2 = row + 2 >= numRows ? row + 2 - numRows : row + 2
+    const leftCol2 = col - 2 < 0 ? numCols - 1 : col - 2
+    const rightCol2 = col + 2 >= numCols ? col + 2 - numCols : col + 2
 
     const updatedGrid = produce(grid, draft => {
 
@@ -125,27 +117,28 @@ function GameOfLife() {
        
           case 'GLIDER': { 
             draft[row][col] = draft[row][col] ? 0 : 1
-            draft[row][col+1] = draft[row][col+1] ? 0 : 1
-            draft[row][col+2] = draft[row][col+2] ? 0 : 1
-            draft[row+1][col] = draft[row+1][col] ? 0 : 1
-            draft[row+2][col+1] = draft[row+2][col+1] ? 0 : 1
+            draft[row][rightCol] = draft[row][rightCol] ? 0 : 1
+            draft[row][rightCol2] = draft[row][rightCol2] ? 0 : 1
+            draft[bottomRow][col] = draft[bottomRow][col] ? 0 : 1
+            draft[bottomRow2][rightCol] = draft[bottomRow2][rightCol] ? 0 : 1
             break
           }
 
           case 'BLINKER': { 
             draft[row][col] = draft[row][col] ? 0 : 1
-            draft[row][col+1] = draft[row][col+1] ? 0 : 1
-            draft[row][col-1] = draft[row][col-1] ? 0 : 1
+            draft[row][rightCol] = draft[row][rightCol] ? 0 : 1
+            draft[row][leftCol] = draft[row][leftCol] ? 0 : 1
             
             break
           }
 
           case 'BOAT': {
             draft[row][col] = draft[row][col] ? 0 : 1
-            draft[row][col+1] = draft[row][col+1] ? 0 : 1
-            draft[row+1][col] = draft[row+1][col] ? 0 : 1
-            draft[row+1][col+2] = draft[row+1][col+2] ? 0 : 1
-            draft[row+2][col+1] = draft[row+2][col+1] ? 0 : 1
+            draft[row][rightCol] = draft[row][rightCol] ? 0 : 1
+            draft[bottomRow][col] = draft[bottomRow][col] ? 0 : 1
+            draft[bottomRow][rightCol+1] = draft[bottomRow][rightCol+1] ? 0 : 1
+            console.log(rightCol)
+            draft[bottomRow+1][rightCol] = draft[bottomRow+1][rightCol] ? 0 : 1
             break
           }
 
@@ -269,6 +262,21 @@ function GameOfLife() {
     
 	}, speedRef.current)
 
+  // Seteo grid inicial y figura en base al ultimo input del usuario
+
+  useEffect(()=> {
+    const grid = JSON.parse(localStorage.getItem('grid')) || grid
+    setGrid(grid)
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('grid', JSON.stringify(grid))
+  }, [grid]) 
+
+
+  useEffect(() => {
+    localStorage.setItem('figure', currentFigure)
+  }, [currentFigure])
 
   return (
     <ChakraProvider>
