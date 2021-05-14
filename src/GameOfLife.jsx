@@ -89,11 +89,35 @@ function GameOfLife() {
 
 
   // FUNCTIONS
+  
+  // Al ser la grilla circular, creo funcion que retorna el topRow, bottomRow, 
+  // leftCol o rightCol de acuerdo a la posicion del row/col
 
+  const setBoundarie = (position, positionType, gridSize) => {
+    const { numRows, numCols } = gridSize
+
+    switch (positionType) {
+      case 'topRow': 
+        return position - 1 < 0 ? numRows - 1 : position - 1
+      case 'bottomRow': 
+        return position + 1 === numRows ? 0 : position + 1
+      case 'leftCol': 
+        return position - 1 < 0 ? numCols - 1 : position - 1
+      case 'rightCol': 
+        return position + 1 === numCols ? 0 : position + 1
+    }
+  }
 
   const draw = (row, col, figure) => {
+
+    const topRow = row - 1 < 0 ? numRows - 1 : row - 1 
+    const bottomRow = row + 1 === numRows ? 0 : row + 1
+    const leftCol = col - 1 < 0 ? numCols - 1 : col - 1
+    const rightCol = col + 1 === numCols ? 0 : col + 1
+
+
     const updatedGrid = produce(grid, draft => {
-    
+
         switch(figure) {
           case 'DOT':
             draft[row][col] = grid[row][col] ? 0 : 1
