@@ -26,19 +26,21 @@ function GameOfLife() {
 
   // INIT FUNCTIONS  
   
-  // Crea la grilla de acuerdo a las filas y columnas pasadas por parametro
-  // Dependiendo del pattern (RANDOM, DEFAULT), setea las celulas iniciales
-  // como vivas o muertas
-
+  // Setea el estado de la celula a 0 si el pattern inicial es DEFAULT
+  // o a random (0, 1) si el pattern inicial es RANDOM
 
   const setCellStatus = pattern => {
     switch(pattern) {
       case 'RANDOM': 
-        return Math.round(Math.random())
+      return Math.round(Math.random())
       case 'DEFAULT':
         return 0
+      }
     }
-  }
+
+  // Crea la grilla de acuerdo a las filas y columnas pasadas por parametro
+  // Dependiendo del pattern (RANDOM, DEFAULT), setea las celulas iniciales
+  // como vivas o muertas
   
   const createGrid = (numRows, numCols, pattern) => {
     const rows = []
@@ -50,11 +52,10 @@ function GameOfLife() {
   }
   
 
-
   // STATE DECLARATIONS
 
 
- // @dev: Array con las posibles figuras.. 
+  // @dev: Array con las posibles figuras.. 
   // @dev: Es el que le paso a change nextFigure
   const figures = [
     'DOT',
@@ -65,29 +66,36 @@ function GameOfLife() {
     'BEACON',
     'BLOCK'
   ]
-  
+
+  // Setea el patron (figura) a dibujar
+
   const [currentFigure, setCurrentFigure] = useState(() => {
     const figure = localStorage.getItem('figure') || 'GLIDER'
     return figure
   })
 
+  // Valores de inicializacion por defecto
   const [initialGrid, setInitialGrid] = useState({
     numRows: 30,
     numCols: 40,
     pattern: 'DEFAULT'
   })
 
+  // Destructuracion de los valores por defecto
   const { numRows, numCols, pattern } = initialGrid
 
-
+  // Setea la grid
   const [grid, setGrid] = useState(() => 
     createGrid(numRows, numCols, pattern)
   )
   
+  // Stepmode FALSE o TRUE
   const [stepmode, setStepmode] = useState(false)
   
+  // Current generation
   const [generation, setGeneration] = useState(1)
 
+  // Velocidad del interval
   const speedRef = useRef()
   
  
@@ -107,6 +115,11 @@ function GameOfLife() {
     const bottomRow2 = row + 2 >= numRows ? row + 2 - numRows : row + 2
     const leftCol2 = col - 2 < 0 ? numCols - 1 : col - 2
     const rightCol2 = col + 2 >= numCols ? col + 2 - numCols : col + 2
+    
+    const topRow3 = row - 3 < 0 ? numRows - 1 : row - 3 
+    const bottomRow3 = row + 3 >= numRows ? row + 3 - numRows : row + 3
+    const leftCol3 = col - 3 < 0 ? numCols - 1 : col - 3
+    const rightCol3 = col + 3 >= numCols ? col + 3 - numCols : col + 3
 
     const updatedGrid = produce(grid, draft => {
 
@@ -136,35 +149,34 @@ function GameOfLife() {
             draft[row][col] = draft[row][col] ? 0 : 1
             draft[row][rightCol] = draft[row][rightCol] ? 0 : 1
             draft[bottomRow][col] = draft[bottomRow][col] ? 0 : 1
-            draft[bottomRow][rightCol+1] = draft[bottomRow][rightCol+1] ? 0 : 1
-            console.log(rightCol)
-            draft[bottomRow+1][rightCol] = draft[bottomRow+1][rightCol] ? 0 : 1
+            draft[bottomRow][rightCol2] = draft[bottomRow][rightCol2] ? 0 : 1
+            draft[bottomRow2][rightCol] = draft[bottomRow2][rightCol] ? 0 : 1
             break
           }
 
           case 'SHIP': {
             draft[row][col] = draft[row][col] ? 0 : 1
-            draft[row][col+1] = draft[row][col+1] ? 0 : 1
-            draft[row+1][col] = draft[row+1][col] ? 0 : 1
-            draft[row+1][col+2] = draft[row+1][col+2] ? 0 : 1
-            draft[row+2][col+1] = draft[row+2][col+1] ? 0 : 1
-            draft[row+2][col+2] = draft[row+2][col+2] ? 0 : 1
+            draft[row][rightCol] = draft[row][rightCol] ? 0 : 1
+            draft[bottomRow][col] = draft[bottomRow][col] ? 0 : 1
+            draft[bottomRow][rightCol2] = draft[bottomRow][rightCol2] ? 0 : 1
+            draft[bottomRow2][rightCol] = draft[bottomRow2][rightCol] ? 0 : 1
+            draft[bottomRow2][rightCol2] = draft[bottomRow2][rightCol2] ? 0 : 1
             break
           }
           case 'BEACON': {
             draft[row][col] = draft[row][col] ? 0 : 1
-            draft[row][col+1] = draft[row][col+1] ? 0 : 1
-            draft[row+1][col] = draft[row+1][col]  ? 0 : 1
-            draft[row+3][col+2] = draft[row+3][col+2] ? 0 : 1
-            draft[row+3][col+3] = draft[row+3][col+3] ? 0 : 1
-            draft[row+2][col+3] = draft[row+2][col+3] ? 0 : 1
+            draft[row][rightCol] = draft[row][rightCol] ? 0 : 1
+            draft[bottomRow][col] = draft[bottomRow][col] ? 0 : 1
+            draft[bottomRow3][rightCol2] = draft[bottomRow3][rightCol2] ? 0 : 1
+            draft[bottomRow3][rightCol3] = draft[bottomRow3][rightCol3] ? 0 : 1
+            draft[bottomRow2][rightCol3] = draft[bottomRow2][rightCol3] ? 0 : 1
             break
           }
           case 'BLOCK': {
             draft[row][col] = draft[row][col] ? 0 : 1
-            draft[row+1][col+1] = draft[row+1][col+1] ? 0 : 1
-            draft[row+1][col] = draft[row+1][col]  ? 0 : 1
-            draft[row][col+1] = draft[row][col+1] ? 0 : 1
+            draft[bottomRow][rightCol] = draft[bottomRow][rightCol] ? 0 : 1
+            draft[bottomRow][col] = draft[bottomRow][col]  ? 0 : 1
+            draft[row][rightCol] = draft[row][rightCol] ? 0 : 1
             break
           }
           default: 
