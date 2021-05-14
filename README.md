@@ -14,4 +14,4 @@ All other live cells die in the next generation. Similarly, all other dead cells
 
 ## Online Demo
 
-[Game of Life](http://gameoflife.franespeche.com)
+Watch it on -> [Game of Life](http://gameoflife.franespeche.com)
